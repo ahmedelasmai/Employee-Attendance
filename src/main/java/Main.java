@@ -14,7 +14,7 @@
 
             EmployeeManager employeeManager = new EmployeeManager();
             ComplianceManager complianceManager = new ComplianceManager();
-            ReportManager reportManager = new ReportManager();
+            // ReportManager reportManager = new ReportManager();
             DatabaseManager databaseManager = new DatabaseManager();
 
 
@@ -122,24 +122,47 @@
                         break;
 
                     case 10:
-                        System.out.println("generating CSV report for (YYYY-MM-DD)");
-                        LocalDate today = LocalDate.now();
+                        System.out.println("run daily compliance job");
+                        System.out.println("Generating and uploading daily CSV report and SNS notification...");
 
-                        DateTimeFormatter formatter =
-                                DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                        String formattedDate = today.format(formatter);
+                            LocalDate today = LocalDate.now();
+                            String yyyy = String.valueOf(today.getYear());
+                            String mm = String.format("%02d", today.getMonthValue());
+                            String dd = String.format("%02d", today.getDayOfMonth());
 
-                        ArrayList<ComplianceViolation> dailyViolations =
-                                complianceManager.generateViolations(
-                                        AttendanceManager.attendanceRecords,
-                                        employeeManager.getAllEmployees()
-                                );
-                        ReportManager.generateCsvReport(dailyViolations,
-                                "attendance_violations_" + formattedDate + ".csv");
-                        
-                        
+                            String fileName = "attendance_violations_" + today + ".csv";
 
-                        break;
+                            ArrayList<ComplianceViolation> dailyViolations =
+                                    complianceManager.generateViolations(
+                                            AttendanceManager.attendanceRecords,
+                                            employeeManager.getAllEmployees()
+                                    );
+
+                            ReportManager.generateCsvReport(dailyViolations, fileName);
+
+                            String s3Key =
+                                    "attendance/compliance/" +
+                                    yyyy + "/" + mm + "/" + dd + "/" + fileName;
+
+                            S3Uploader.upload(fileName, s3Key);
+
+                            // sns notifcation
+
+                            String summaryMessage =
+                                "Daily Attendance Report " + today + "\n" +
+                                "Total violations: " + dailyViolations.size() + "\n" +
+                                "Report uploaded to S3 at:\n" +
+                                s3Key;
+
+                            SnsPublisher.publishSummary(summaryMessage);
+
+                            // sqs
+                            for (ComplianceViolation violation : dailyViolations) {
+                                SqsPublisher.publishViolation(violation);
+                            }
+
+                            break;
+
 
                     default:
                         System.out.println("Invalid choice.");
