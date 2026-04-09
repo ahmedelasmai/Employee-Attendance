@@ -118,8 +118,8 @@
                         break;
 
                     case 10:
-                        
-                        System.out.println("Generating and uploading daily CSV report");
+                        System.out.println("run daily compliance job");
+                        System.out.println("Generating and uploading daily CSV report and SNS notification...");
 
                             LocalDate today = LocalDate.now();
                             String yyyy = String.valueOf(today.getYear());
@@ -141,6 +141,22 @@
                                     yyyy + "/" + mm + "/" + dd + "/" + fileName;
 
                             S3Uploader.upload(fileName, s3Key);
+
+                            // sns notifcation
+
+                            String summaryMessage =
+                                "Daily Attendance Report " + today + "\n" +
+                                "Total violations: " + dailyViolations.size() + "\n" +
+                                "Report uploaded to S3 at:\n" +
+                                s3Key;
+
+                            SnsPublisher.publishSummary(summaryMessage);
+
+                            // sqs
+                            for (ComplianceViolation violation : dailyViolations) {
+                                SqsPublisher.publishViolation(violation);
+                            }
+
                             break;
 
 
