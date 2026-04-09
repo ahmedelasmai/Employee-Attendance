@@ -24,5 +24,10 @@ public class Employee {
         System.out.println("Employee ID: " + employeeId);
         System.out.println("Employee Name: " + name);
     }
+
+    public int getId() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getId'");
+    }
 }
 

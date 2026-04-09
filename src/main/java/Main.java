@@ -15,6 +15,7 @@
             EmployeeManager employeeManager = new EmployeeManager();
             ComplianceManager complianceManager = new ComplianceManager();
             ReportManager reportManager = new ReportManager();
+            DatabaseManager databaseManager = new DatabaseManager();
 
 
             while (running) {
@@ -92,6 +93,8 @@
 
                     case 6:
                         employeeManager.displayAllEmployees();
+                        System.out.println("Employees from database:");
+                        databaseManager.displayEmployees();
                         break;
 
                     case 7:
@@ -101,6 +104,7 @@
                         String name = sc.nextLine();
 
                         employeeManager.addEmployee(new Employee(empId, name));
+                        databaseManager.saveEmployee(new Employee(empId, name));
                         System.out.println("Employee created.");
                         break;
 
@@ -132,6 +136,8 @@
                                 );
                         ReportManager.generateCsvReport(dailyViolations,
                                 "attendance_violations_" + formattedDate + ".csv");
+                        
+                        
 
                         break;
 
