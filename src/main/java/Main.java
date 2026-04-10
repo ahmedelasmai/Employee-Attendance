@@ -33,7 +33,7 @@
                         7. Create employee
                         8. See attendance record
                         9. View all attendance records
-                        10. generate CSV report
+                        10. Run daily job & generate CSV report
                         ----------------------------
                         Enter choice:
                         """);
