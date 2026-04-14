@@ -4,24 +4,20 @@ import static org.junit.jupiter.api.Assertions.*;
 public class EmployeeManagerTest {
 
     @Test
-    void addAndSearchEmployee_shouldReturnEmployee() {
+    void addEmployee_thenSearch_returnsEmployee() {
         EmployeeManager manager = new EmployeeManager();
+        Employee employee = new Employee(1, "Ahmed");
 
-        Employee emp = new Employee(1, "Ahmed");
-        manager.addEmployee(emp);
+        manager.addEmployee(employee);
 
         Employee result = manager.searchEmployeeById(1);
-
         assertNotNull(result);
         assertEquals("Ahmed", result.getName());
     }
 
     @Test
-    void searchEmployee_nonExisting_shouldReturnNull() {
+    void searchEmployee_notFound_returnsNull() {
         EmployeeManager manager = new EmployeeManager();
-
-        Employee result = manager.searchEmployeeById(999);
-
-        assertNull(result);
+        assertNull(manager.searchEmployeeById(999));
     }
 }
